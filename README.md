@@ -1,2 +1,2 @@
 # EasyChecker
-Minecraft 1.16.5 cheat checker
+Чекер легитных и популярных читов под Minecraft 1.16.5.
