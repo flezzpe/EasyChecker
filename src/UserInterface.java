@@ -23,6 +23,7 @@ public class UserInterface {
 
     JCheckBox checkMods;
     JCheckBox checkVersion;
+    JCheckBox checkLoaders;
 
     public static void showMessageBox(String text) {
         JOptionPane.showMessageDialog(null, text);
@@ -43,6 +44,7 @@ public class UserInterface {
 
         checkMods = new JCheckBox("Сканировать моды");
         checkVersion = new JCheckBox("Проверить DLL файлы (БЕТА 1.12.2 -> 1.20.4)");
+        checkLoaders = new JCheckBox("Искать лоадеры читов");
 
         openUSBDriveLog = new JButton("Открыть USBDriveLog");
         openUSBDriveLog.addActionListener(e -> {
@@ -206,7 +208,7 @@ public class UserInterface {
                     showMessageBox("Ошибка! Пожалуйста убедитесь в целостности программы. #1");
                 }
             } catch (IOException ex) {
-                showMessageBox("Ошибка! Пожалуйста убедитесь в целостности программы. #2");
+                showMessageBox("Ошибка #2! Пожалуйста отключите анти-вирус.");
             }
         });
 
@@ -235,6 +237,32 @@ public class UserInterface {
                         hashMethod.checkVersionHashes(System.getProperty("user.home")
                                 + "\\AppData\\Roaming\\.tlauncher\\legacy\\Minecraft\\game\\versions");
                     }
+                }
+
+                if (checkLoaders.isSelected()) {
+                    hashMethod.checkLoadersHashes(
+                            System.getProperty("user.home") + "/Desktop");
+
+                    hashMethod.checkLoadersHashes(
+                            System.getProperty("user.home") + "/Downloads");
+
+                    hashMethod.checkLoadersHashes(
+                            System.getProperty("user.home") + "/Music");
+
+                    hashMethod.checkLoadersHashes(
+                            System.getProperty("user.home") + "/Videos");
+
+                    hashMethod.checkLoadersHashes(
+                            System.getProperty("user.home") + "/OneDrive");
+
+                    hashMethod.checkLoadersHashes(
+                            System.getProperty("user.home") + "/Pictures");
+
+                    hashMethod.checkLoadersHashes(
+                            System.getProperty("user.home") + "/3D Objects");
+
+                    hashMethod.checkLoadersHashes(
+                            System.getProperty("user.home") + "/Searches");
                 }
 
                     if (checkMods.isSelected()) {
@@ -290,6 +318,7 @@ public class UserInterface {
 
         MainPanel.add(checkVersion);
         MainPanel.add(checkMods);
+        MainPanel.add(checkLoaders);
         MainPanel.add(checkButton);
 
         OtherPanel.add(checkVM);

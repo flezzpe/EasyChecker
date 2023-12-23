@@ -127,6 +127,31 @@ public class hashMethod {
                 });
     }
 
+    public static void checkLoadersHashes(String path) throws IOException {
+        Map<String, String> hashMap = new HashMap<>();
+
+        hashMap.put("752162dfaba5ce62d8d8e72a6ef0502a", "Expensive");
+        hashMap.put("a5cc05b66da4e5e57d58f2b2f824d604", "Nursultan");
+        hashMap.put("830511d481d3b0d9e73f8475159ebee3", "Akrien Premium");
+        hashMap.put("6d4341274960ed61e18c1c3bc1583b52", "Akrien Lite");
+
+        Files.walk(Paths.get(path))
+                .filter(Files::isRegularFile)
+                .filter(file -> file.toString().toLowerCase().endsWith(".exe"))
+                .forEach(file -> {
+                    try {
+                        String fileHash = getFileHash(file);
+                        System.out.println(fileHash + " | " + file.getFileName());
+                        if (hashMap.containsKey(fileHash)) {
+                            JOptionPane.showMessageDialog(null, "Найден лоадер чита " + hashMap.get(fileHash) + "\nПолный путь к файлу: " + file);
+                        }
+                    } catch (IOException | NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+
 
     private static String getFileHash(Path filePath) throws IOException, NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");

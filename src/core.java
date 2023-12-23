@@ -15,6 +15,6 @@ public class core {
 
         // UI Class
         UserInterface ui = new UserInterface();
-        ui.initUi("EC v0.0.2 | dev: FlessPe | discord - (java.dll)", 500, 300, true);
+        ui.initUi("EC v0.0.3 | by: FlessPe | discord - (java.dll)", 500, 300, true);
     }
 }
