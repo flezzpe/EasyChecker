@@ -9,7 +9,7 @@ public class core {
         try {
             UIManager.setLookAndFeel(new FlatGitHubDarkIJTheme());
         } catch (Exception ex) {
-            UserInterface.showMessageBox("Не удалось инициализировать библеотеку интерфейса.");
+            UserInterface.showMessageBox("Не удалось инициализировать библиотеку интерфейса.");
         }
 
 
