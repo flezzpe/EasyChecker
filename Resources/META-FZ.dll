@@ -1,0 +1,1069 @@
+--// leak = bad 🙏🙏
+
+local ContextActionService = cloneref(game:GetService('ContextActionService'))
+local UserInputService = cloneref(game:GetService('UserInputService'))
+local TweenService = cloneref(game:GetService('TweenService'))
+local HttpService = cloneref(game:GetService('HttpService'))
+local RunService = cloneref(game:GetService('RunService'))
+local Lighting = cloneref(game:GetService('Lighting'))
+local Players = cloneref(game:GetService('Players'))
+local Debris = cloneref(game:GetService('Debris'))
+
+
+local LocalPlayer = Players.LocalPlayer
+local mouse = LocalPlayer:GetMouse()
+
+
+local Library = {
+	mobile = table.find({ Enum.Platform.IOS, Enum.Platform.Android }, UserInputService:GetPlatform()),
+	disconnected = false,
+	open = true,
+	current_tab = nil,
+	flags = {},
+	ui = nil
+}
+
+
+local Connections = {}
+
+
+function Connections:abadone()
+	for _, connection in Connections do
+		if typeof(connection) == 'function' then
+			connection = nil
+
+			continue
+		end
+
+		connection:Disconnect()
+		connection = nil
+	end
+end
+
+
+
+local ConfigsController = {}
+
+
+function ConfigsController.save(file_name, config)
+	if not isfolder('Nurysium') then
+		makefolder('Nurysium')
+	end
+
+	if not isfolder('Nurysium/configs') then
+		makefolder('Nurysium/configs')
+	end
+
+	local flags = HttpService:JSONEncode(config)
+
+	writefile('Nurysium/configs/' .. file_name .. '.json', flags)
+end
+
+
+function ConfigsController.load(file_name, config)
+	if not isfile('Nurysium/configs/' .. file_name .. '.json') then
+		ConfigsController.save(file_name, config)
+
+		return
+	end
+
+	local flags = readfile('Nurysium/configs/' .. file_name .. '.json')
+
+	if not flags then
+		ConfigsController.save(file_name, config)
+
+		return
+	end
+
+	return HttpService:JSONDecode(flags)
+end
+
+
+local current_config = ConfigsController.load(game.GameId, Library.flags)
+Library.flags = current_config
+
+if not Library.flags then
+	Library.flags = {}
+end
+
+
+UserInputService.InputBegan:Connect(function(input, event)
+	if Library.disconnected then
+		return
+	end
+
+	if input.KeyCode ~= Enum.KeyCode.Insert then
+		return
+	end
+
+	if event then
+		return
+	end
+
+	Library.open = not Library.open
+    Library.ui.Enabled = not Library.ui.Enabled
+end)
+
+
+local UIManager = {}
+
+
+function UIManager.refresh_tabs(Tab)
+	for _, object in Library.ui.Background.Tabs:GetChildren() do
+		if not object:IsA('TextButton') then
+			continue
+		end
+
+        if object == Tab then
+            TweenService:Create(Tab, TweenInfo.new(0.7, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+                TextColor3 = Color3.fromRGB(216, 216, 216)
+            }):Play()
+        
+            continue
+        end
+
+        TweenService:Create(object, TweenInfo.new(0.7, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+            TextColor3 = Color3.fromRGB(134, 134, 134)
+        }):Play()
+	end
+end
+
+
+function UIManager.refresh_sections(right_section, left_section)
+	for _, object in Library.ui.Background.Sections:GetChildren() do
+		if object == left_section or object == right_section then
+			object.Visible = true
+
+			continue
+		end
+
+		object.Visible = false
+	end
+end
+
+
+function Library:changed()
+	Library.ui.AncestryChanged:Once(self)
+end
+
+
+function Library:__init__()
+    local old_ui = self.parent:FindFirstChild(self.name)
+
+	if old_ui then
+		Debris:AddItem(old_ui, 0)
+	end
+
+    local Nurysium = Instance.new('ScreenGui')
+    local Background = Instance.new('Frame')
+    local Watermark = Instance.new('TextLabel')
+    local line = Instance.new('Frame')
+    local Tabs = Instance.new('Frame')
+    local UIListLayout = Instance.new('UIListLayout')
+    local Sections = Instance.new('Folder')
+    local UIListLayout_2 = Instance.new('UIListLayout')
+    local UIPadding = Instance.new('UIPadding')
+    local UIPadding_2 = Instance.new('UIPadding')
+    local UIListLayout_3 = Instance.new('UIListLayout')
+    local Dragger = Instance.new('Frame')
+    local Hint = Instance.new('TextLabel')
+    local Gif = Instance.new('ImageLabel')
+    local UICorner = Instance.new('UICorner')
+    local UIStroke = Instance.new('UIStroke')
+    local UIScale = Instance.new('UIScale')
+    local Mobile = Instance.new('ScreenGui')
+    local MobileButton = Instance.new('Frame')
+    local Button = Instance.new('ImageButton')
+    local UICorner_2 = Instance.new('UICorner')
+
+    Nurysium.Name = self.name
+    Nurysium.Parent = self.parent
+
+    Library.ui = Nurysium
+
+	Library.changed(function()
+		table.clear(Library.flags)
+
+		Library.disconnected = true
+	end)
+
+    Background.Name = 'Background'
+    Background.Parent = Nurysium
+    Background.AnchorPoint = Vector2.new(0.5, 0.5)
+    Background.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    Background.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Background.BorderSizePixel = 0
+    Background.Position = UDim2.new(0.5, 0, 0.497678399, 0)
+    Background.Size = UDim2.new(0, 450, 0, 345)
+    Background.Active = true
+
+    Watermark.Name = math.random()
+    Watermark.Parent = Background
+    Watermark.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Watermark.BackgroundTransparency = 1.000
+    Watermark.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Watermark.BorderSizePixel = 0
+    Watermark.Position = UDim2.new(0.027999945, 0, 0.0250000004, 0)
+    Watermark.Size = UDim2.new(0, 64, 0, 13)
+    Watermark.ZIndex = 2
+    Watermark.Font = Enum.Font.Code
+    Watermark.Text = 'Nurysium'
+    Watermark.TextColor3 = Color3.fromRGB(232, 198, 235)
+    Watermark.TextScaled = true
+    Watermark.TextSize = 14.000
+    Watermark.TextStrokeTransparency = 0.000
+    Watermark.TextWrapped = true
+    Watermark.TextXAlignment = Enum.TextXAlignment.Left
+
+    line.Name = math.random()
+    line.Parent = Background
+    line.AnchorPoint = Vector2.new(0.5, 0.5)
+    line.BackgroundColor3 = Color3.fromRGB(54, 54, 53)
+    line.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    line.BorderSizePixel = 0
+    line.Position = UDim2.new(0.499583334, 0, 0.0899999663, 0)
+    line.Size = UDim2.new(0, 415, 0, 1)
+    line.ZIndex = 2
+
+    Tabs.Name = 'Tabs'
+    Tabs.Parent = Background
+    Tabs.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    Tabs.BackgroundTransparency = 1.000
+    Tabs.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Tabs.BorderSizePixel = 0
+    Tabs.Position = UDim2.new(0.0311111119, 0, 0.122650057, 0)
+    Tabs.Size = UDim2.new(0, 421, 0, 17)
+    Tabs.ZIndex = 2
+
+    UIListLayout.Parent = Tabs
+    UIListLayout.FillDirection = Enum.FillDirection.Horizontal
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+    UIListLayout.HorizontalFlex = Enum.UIFlexAlignment.SpaceAround
+
+    Sections.Name = 'Sections'
+    Sections.Parent = Background
+
+
+    Dragger.Name = math.random()
+    Dragger.Parent = Background
+    Dragger.AnchorPoint = Vector2.new(0.5, 0.5)
+    Dragger.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    Dragger.BackgroundTransparency = 1.000
+    Dragger.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Dragger.BorderSizePixel = 0
+    Dragger.Position = UDim2.new(0.575833321, 0, 0.0429805145, 0)
+    Dragger.Size = UDim2.new(0, 366, 0, 20)
+    Dragger.ZIndex = 3
+
+    Hint.Name = math.random()
+    Hint.Parent = Dragger
+    Hint.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Hint.BackgroundTransparency = 1.000
+    Hint.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Hint.BorderSizePixel = 0
+    Hint.Position = UDim2.new(0.260896266, 0, 0.174999997, 0)
+    Hint.Size = UDim2.new(0, 130, 0, 13)
+    Hint.ZIndex = 2
+    Hint.Font = Enum.Font.Code
+    Hint.Text = 'Scroll for resize'
+    Hint.TextColor3 = Color3.fromRGB(232, 198, 235)
+    Hint.TextScaled = true
+    Hint.TextSize = 14.000
+    Hint.TextStrokeTransparency = 0.000
+    Hint.TextTransparency = 1.000
+    Hint.TextWrapped = true
+    Hint.TextXAlignment = Enum.TextXAlignment.Left
+
+    Gif.Name = math.random()
+    Gif.Parent = Background
+    Gif.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Gif.BackgroundTransparency = 1.000
+    Gif.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Gif.BorderSizePixel = 0
+    Gif.Position = UDim2.new(-0.000927463116, 0, 0.711033046, 0)
+    Gif.Size = UDim2.new(0, 66, 0, 99)
+    Gif.Image = 'rbxassetid://131864416740953'
+    Gif.ImageTransparency = 0.430
+    Gif.ScaleType = Enum.ScaleType.Fit
+
+    UICorner.Name = math.random()
+    UICorner.Parent = Background
+
+
+    UIStroke.Name = math.random()
+    UIStroke.Parent = Background
+    UIStroke.Color = Color3.fromRGB(24, 20, 24)
+
+
+    UIScale.Name = math.random()
+    UIScale.Parent = Background
+
+    Mobile.Name = math.random()
+    Mobile.Parent = Nurysium
+    Mobile.Enabled = Library.mobile
+    Mobile.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    MobileButton.Name = math.random()
+    MobileButton.Parent = Mobile
+    MobileButton.AnchorPoint = Vector2.new(0.5, 0.5)
+    MobileButton.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    MobileButton.BackgroundTransparency = 0.008
+    MobileButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    MobileButton.BorderSizePixel = 0
+    MobileButton.Position = UDim2.new(0.044947505, 0, 0.940311432, 0)
+    MobileButton.Size = UDim2.new(0, 72, 0, 48)
+
+    Button.Name = math.random()
+    Button.Parent = MobileButton
+    Button.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    Button.BackgroundTransparency = 1.000
+    Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Button.BorderSizePixel = 0
+    Button.Position = UDim2.new(0.249507055, 0, 0.131131485, 0)
+    Button.Size = UDim2.new(0, 35, 0, 35)
+    Button.Image = 'rbxassetid://135018111977893'
+
+
+    Button.TouchTap:Connect(function()
+        if Library.disconnected then
+            return
+        end
+    
+        Library.open = not Library.open
+        Library.ui.Enabled = not Library.ui.Enabled
+    end)
+
+    UICorner_2.Parent = MobileButton
+
+
+    local function TPWWXE_script()
+        local script = Instance.new('LocalScript', Dragger)
+
+        local UserInputService = game:GetService('UserInputService')
+        local TweenService = game:GetService('TweenService')
+        
+        local current_frame = script.Parent
+        local hint = Hint
+        local ui_scale = current_frame.Parent:FindFirstChildOfClass('UIScale')
+        
+        if not ui_scale then
+            return
+        end
+        
+        local drag_enabled = false
+        local drag_start_position = Vector2.zero
+        local frame_start_position = UDim2.new()
+        
+        local ZOOM_FACTOR = 1
+        local GRID_SIZE = 10
+        
+        local function snap_to_grid(value, grid_size)
+            return math.round(value / grid_size) * grid_size
+        end
+        
+        local function update_position(input)
+            if input == 'resize' then
+                TweenService:Create(ui_scale, TweenInfo.new(0.41, Enum.EasingStyle.Exponential), {
+                    Scale = ZOOM_FACTOR
+                }):Play()
+                return
+            end
+        
+            local mouse_position = Vector2.new(input.Position.X, input.Position.Y)
+            local delta = mouse_position - drag_start_position
+        
+            local new_x = frame_start_position.X.Offset + delta.X
+            local new_y = frame_start_position.Y.Offset + delta.Y
+        
+            local snapped_x = snap_to_grid(new_x, GRID_SIZE)
+            local snapped_y = snap_to_grid(new_y, GRID_SIZE)
+
+            if not current_frame then
+                return
+            end
+        
+            TweenService:Create(current_frame.Parent, TweenInfo.new(0.25, Enum.EasingStyle.Back), {
+                Position = UDim2.new(
+                    frame_start_position.X.Scale,
+                    snapped_x,
+                    frame_start_position.Y.Scale,
+                    snapped_y
+                )
+            }):Play()
+        end
+        
+        current_frame.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                drag_enabled = true
+                drag_start_position = Vector2.new(input.Position.X, input.Position.Y)
+                frame_start_position = current_frame.Parent.Position
+        
+                input.Changed:Connect(function()
+                    if drag_enabled then
+                        TweenService:Create(hint, TweenInfo.new(1, Enum.EasingStyle.Exponential), {
+                            TextTransparency = 1
+                        }):Play()
+                    end
+                    
+                    
+                    if input.UserInputState == Enum.UserInputState.End then
+                        drag_enabled = false
+                    end
+                end)
+            end
+        end)
+        
+        UserInputService.InputChanged:Connect(function(input)
+            if drag_enabled and input.UserInputType == Enum.UserInputType.MouseWheel then
+                if input.Position.Z > 0 then
+                    if ZOOM_FACTOR >= 1.55 then
+                        ZOOM_FACTOR = 1.55
+        
+                        return
+                    end
+                    
+                    ZOOM_FACTOR += 0.05
+                else
+                    if ZOOM_FACTOR <= 0.7 then
+                        ZOOM_FACTOR = 0.7
+                        
+                        return
+                    end
+                    
+                    ZOOM_FACTOR -= 0.05
+                end
+        
+                update_position('resize')
+            end
+        
+            if drag_enabled and input.UserInputType == Enum.UserInputType.MouseMovement then
+                TweenService:Create(hint, TweenInfo.new(0.25, Enum.EasingStyle.Exponential), {
+                    TextTransparency = 0.89
+                }):Play()
+                
+                update_position(input)
+            end
+        end)
+        
+    end
+
+    coroutine.wrap(TPWWXE_script)()
+
+
+    local function TAXS_script()
+        local script = Instance.new('LocalScript', Gif)
+
+        local gif = script.Parent
+    
+        local id = {
+            'rbxassetid://76564268326687',
+            'rbxassetid://118662080544099',
+            'rbxassetid://78013358273157',
+            'rbxassetid://131864416740953',
+            'rbxassetid://100720741289983',
+            'rbxassetid://87626646356851'
+        }
+        
+        while task.wait() do
+            for _, image in id do
+                gif.Image = image
+                
+                task.wait(0.175)
+            end
+        end
+    end
+    
+    coroutine.wrap(TAXS_script)()
+
+
+    local TabsController = {}
+
+	function TabsController.create_tab(text)
+        local Tab = Instance.new("TextButton")
+
+        Tab.Name = math.random()
+        Tab.Parent = Library.ui.Background.Tabs
+        Tab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Tab.BackgroundTransparency = 1.000
+        Tab.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Tab.BorderSizePixel = 0
+        Tab.Size = UDim2.new(0.19002375, 0, 1, 0)
+        Tab.Font = Enum.Font.Code
+        Tab.Text = text
+        Tab.TextColor3 = Color3.fromRGB(134, 134, 134)
+        Tab.TextSize = 14.000
+        Tab.TextStrokeTransparency = 0.000
+        Tab.TextWrapped = true
+    
+
+        local Left = Instance.new("ScrollingFrame")
+        local UIListLayout = Instance.new("UIListLayout")
+        local UIPadding = Instance.new("UIPadding")
+        local Right = Instance.new("ScrollingFrame")
+        local UIPadding_2 = Instance.new("UIPadding")
+        local UIListLayout_2 = Instance.new("UIListLayout")
+
+
+        Left.Name = "Left"
+        Left.Parent = Library.ui.Background.Sections
+        Left.Active = true
+        Left.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+        Left.BackgroundTransparency = 1.000
+        Left.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Left.BorderSizePixel = 0
+        Left.Position = UDim2.new(0.0591666661, 0, 0.186577037, 0)
+        Left.Size = UDim2.new(0, 194, 0, 270)
+        Left.ZIndex = 2
+        Left.ScrollBarImageColor3 = Color3.fromRGB(232, 198, 235)
+        Left.ScrollBarThickness = 0
+        Left.ScrollBarImageTransparency = 1
+        Left.Visible = false
+
+        UIListLayout.Parent = Left
+        UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+        UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        UIListLayout.Padding = UDim.new(0, 7)
+
+        UIPadding.Parent = Left
+        UIPadding.PaddingTop = UDim.new(0, 5)
+
+        Right.Name = "Right"
+        Right.Parent = Library.ui.Background.Sections
+        Right.Active = true
+        Right.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+        Right.BackgroundTransparency = 1.000
+        Right.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Right.BorderSizePixel = 0
+        Right.Position = UDim2.new(0.506944418, 0, 0.187253207, 0)
+        Right.Size = UDim2.new(0, 194, 0, 270)
+        Right.ZIndex = 2
+        Right.ScrollBarImageColor3 = Color3.fromRGB(232, 198, 235)
+        Right.ScrollBarThickness = 0
+        Right.ScrollBarImageTransparency = 1
+        Right.Visible = false
+
+        UIPadding_2.Parent = Right
+        UIPadding_2.PaddingTop = UDim.new(0, 5)
+
+        UIListLayout_2.Parent = Right
+        UIListLayout_2.HorizontalAlignment = Enum.HorizontalAlignment.Center
+        UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
+        UIListLayout_2.Padding = UDim.new(0, 7)
+
+
+        Tab.MouseButton1Up:Connect(function()
+            local current_tab = Library.current_tab
+
+			if current_tab == Tab.Name then
+				return
+			end
+
+
+			current_tab = Tab.Name
+
+
+			UIManager.refresh_tabs(Tab)
+			UIManager.refresh_sections(Right, Left)
+		end)
+
+        
+        Tab.TouchTap:Connect(function()
+            local current_tab = Library.current_tab
+
+			if current_tab == Tab.Name then
+				return
+			end
+
+
+			current_tab = Tab.Name
+
+
+			UIManager.refresh_tabs(Tab)
+			UIManager.refresh_sections(Right, Left)
+		end)
+
+
+        local ModuleController = {}
+
+        function ModuleController:create_module(callback)
+            local Module = Instance.new("Frame")
+            local Settings = Instance.new("Frame")
+            local UIListLayout = Instance.new("UIListLayout")
+            local SizeFixer = Instance.new("Frame")
+            local UICorner = Instance.new("UICorner")
+            local UIPadding = Instance.new("UIPadding")
+            local UIPadding_2 = Instance.new("UIPadding")
+            local UICorner_2 = Instance.new("UICorner")
+            local Tab = Instance.new("TextButton")
+
+
+            Module.Name = math.random()
+            Module.Parent = (self.side == 'right' and Right or Left)
+            Module.Active = true
+            Module.BackgroundColor3 = Color3.fromRGB(17, 17, 17)
+            Module.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            Module.BorderSizePixel = 0
+            Module.AutomaticSize = Enum.AutomaticSize.Y
+            Module.Position = UDim2.new(0.0412371121, 0, 0.0233766232, 0)
+            Module.Selectable = true
+            Module.Size = UDim2.new(0, 186, 0, 26)
+
+            Settings.Name = math.random()
+            Settings.Parent = Module
+            Settings.Active = true
+            Settings.BackgroundColor3 = Color3.fromRGB(17, 17, 17)
+            Settings.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            Settings.BorderSizePixel = 0
+            Settings.Size = UDim2.new(0, 180, 0, 19)
+            Settings.AutomaticSize = Enum.AutomaticSize.Y
+
+            UIListLayout.Parent = Settings
+            UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+            UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            UIListLayout.Padding = UDim.new(0, 6)
+
+            SizeFixer.Name = math.random()
+            SizeFixer.Parent = Settings
+            SizeFixer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            SizeFixer.BackgroundTransparency = 1.000
+            SizeFixer.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            SizeFixer.BorderSizePixel = 0
+            SizeFixer.LayoutOrder = 2147483647
+            SizeFixer.Position = UDim2.new(0.472727269, 0, 0.583333313, 0)
+            SizeFixer.Size = UDim2.new(0, 9, 0, 7)
+
+            UICorner.CornerRadius = UDim.new(0, 7)
+            UICorner.Parent = Settings
+
+            UIPadding.Parent = Settings
+            UIPadding.PaddingLeft = UDim.new(0, 7)
+            UIPadding.PaddingTop = UDim.new(0, 25)
+
+            UIPadding_2.Parent = Module
+            UIPadding_2.PaddingTop = UDim.new(0, 10)
+
+            UICorner_2.CornerRadius = UDim.new(0, 7)
+            UICorner_2.Parent = Module
+
+            Tab.Name = math.random()
+            Tab.Parent = Module
+            Tab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            Tab.BackgroundTransparency = 1.000
+            Tab.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            Tab.BorderSizePixel = 0
+            Tab.Position = UDim2.new(0.08, 0, 0.02, 0)
+            Tab.Size = UDim2.new(0, 155, 0, 12)
+            Tab.ZIndex = 2
+            Tab.Font = Enum.Font.Code
+            Tab.Text = self.text
+            Tab.TextColor3 = Color3.fromRGB(131, 122, 129)
+            Tab.TextSize = 14.000
+            Tab.TextStrokeTransparency = 0.000
+            Tab.TextWrapped = true
+            Tab.TextXAlignment = Enum.TextXAlignment.Left
+
+
+            local function update_module(switch)
+				if switch then
+					Library.flags[self.flag] = not Library.flags[self.flag]
+				end
+
+                callback(Library.flags[self.flag])
+
+				if Library.flags[self.flag] then
+					TweenService:Create(Tab, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {
+						TextColor3 = Color3.fromRGB(205, 177, 208)
+					}):Play()
+				else
+					TweenService:Create(Tab, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {
+						TextColor3 = Color3.fromRGB(131, 122, 129)
+					}):Play()
+				end
+			end
+
+			if not Library.flags[self.flag] then
+				Library.flags[self.flag] = false
+			else
+				update_module(false)
+			end
+
+			Tab.MouseButton1Click:Connect(function()
+				update_module(true)
+
+				ConfigsController.save(game.GameId, Library.flags)
+			end)
+
+
+            Tab.TouchTap:Connect(function()
+				update_module(true)
+
+				ConfigsController.save(game.GameId, Library.flags)
+			end)
+
+
+            local SettingsController = {}
+
+			function SettingsController:create_toggle()
+                local Toggle = Instance.new("TextButton")
+                local Rectangle = Instance.new("Frame")
+
+
+                Toggle.Name = math.random()
+                Toggle.Parent = Settings
+                Toggle.Active = false
+                Toggle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                Toggle.BackgroundTransparency = 1.000
+                Toggle.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                Toggle.BorderSizePixel = 0
+                Toggle.Position = UDim2.new(0.0375722535, 0, 0, 0)
+                Toggle.Selectable = false
+                Toggle.Size = UDim2.new(0, 149, 0, 13)
+                Toggle.ZIndex = 2
+                Toggle.Font = Enum.Font.Code
+                Toggle.Text = self.title
+                Toggle.TextColor3 = Color3.fromRGB(131, 122, 129)
+                Toggle.TextScaled = true
+                Toggle.TextSize = 14.000
+                Toggle.TextStrokeTransparency = 0.000
+                Toggle.TextWrapped = true
+                Toggle.TextXAlignment = Enum.TextXAlignment.Left
+
+                Rectangle.Name = math.random()
+                Rectangle.Parent = Toggle
+                Rectangle.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+                Rectangle.BorderColor3 = Color3.fromRGB(9, 9, 9)
+                Rectangle.BorderSizePixel = 1
+                Rectangle.Position = UDim2.new(0.913769186, 0, 0, 0)
+                Rectangle.Size = UDim2.new(0, 13, 0, 13)
+
+
+				local function update_toggle(switch)
+					if switch then
+						Library.flags[self.flag] = not Library.flags[self.flag]
+					end
+
+					if Library.flags[self.flag] then
+						TweenService:Create(Rectangle, TweenInfo.new(2, Enum.EasingStyle.Exponential), {
+							BackgroundColor3 = Color3.fromRGB(189, 164, 192)
+						}):Play()
+
+                        TweenService:Create(Toggle, TweenInfo.new(2, Enum.EasingStyle.Exponential), {
+							TextColor3 = Color3.fromRGB(205, 177, 208)
+						}):Play()
+					else
+						TweenService:Create(Rectangle, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {
+							BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+						}):Play()
+
+                        TweenService:Create(Toggle, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {
+							TextColor3 = Color3.fromRGB(131, 122, 129)
+						}):Play()
+					end
+				end
+
+
+                if not Library.flags[self.flag] then
+					Library.flags[self.flag] = false
+				else
+					update_toggle(false)
+				end
+
+				Toggle.MouseButton1Click:Connect(function()
+					update_toggle(true)
+
+					ConfigsController.save(game.GameId, Library.flags)
+				end)
+
+
+                Toggle.TouchTap:Connect(function()
+					update_toggle(true)
+
+					ConfigsController.save(game.GameId, Library.flags)
+				end)
+            end
+
+
+                function SettingsController:create_slider()  
+                    local Slider = Instance.new("Frame")
+                    local Value = Instance.new("TextLabel")
+                    local Hitbox = Instance.new("TextButton")
+                    local Dragger = Instance.new("TextButton")
+
+                    Slider.Name = math.random()
+                    Slider.Parent = Settings
+                    Slider.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+                    Slider.BackgroundTransparency = 0.800
+                    Slider.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    Slider.BorderSizePixel = 1
+                    Slider.Position = UDim2.new(-0.107726522, 0, 0.88913542, 0)
+                    Slider.Size = UDim2.new(0, 151, 0, 10)
+
+                    Value.Name = math.random()
+                    Value.Parent = Slider
+                    Value.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                    Value.BackgroundTransparency = 1.000
+                    Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    Value.BorderSizePixel = 0
+                    Value.Position = UDim2.new(0.380386621, 0, 0, 0)
+                    Value.Size = UDim2.new(0, 40, 0, 10)
+                    Value.ZIndex = 2
+                    Value.Font = Enum.Font.Code
+                    Value.Text = ""
+                    Value.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    Value.TextScaled = true
+                    Value.TextStrokeTransparency = 0.000
+                    Value.TextWrapped = true
+                    Value.TextTransparency = 1
+
+                    Hitbox.Name = math.random()
+                    Hitbox.Parent = Slider
+                    Hitbox.Active = false
+                    Hitbox.BackgroundTransparency = 1.000
+                    Hitbox.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    Hitbox.BorderSizePixel = 0
+                    Hitbox.Selectable = false
+                    Hitbox.Size = UDim2.new(1, 0, 0, 10)
+                    Hitbox.ZIndex = 2
+                    Hitbox.Text = ""
+
+                    Dragger.Name = math.random()
+                    Dragger.Parent = Slider
+                    Dragger.Active = false
+                    Dragger.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+                    Dragger.BackgroundTransparency = 0.700
+                    Dragger.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    Dragger.BorderSizePixel = 0
+                    Dragger.Position = UDim2.new(-1.61682533e-06, 0, 0, 0)
+                    Dragger.Selectable = false
+                    Dragger.Size = UDim2.new(0.524835467, 0, 0, 10)
+                    Dragger.Text = ""
+
+                    local SliderText = Instance.new("TextLabel")
+
+                    SliderText.Name = math.random()
+                    SliderText.Parent = Settings
+                    SliderText.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                    SliderText.BackgroundTransparency = 1.000
+                    SliderText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    SliderText.BorderSizePixel = 0
+                    SliderText.Position = UDim2.new(0, 0, 1.5, 0)
+                    SliderText.Size = UDim2.new(0, 145, 0, 10)
+                    SliderText.ZIndex = 2
+                    SliderText.Font = Enum.Font.Code
+                    SliderText.Text = self.title
+                    SliderText.TextColor3 = Color3.fromRGB(144, 144, 144)
+                    SliderText.TextSize = 10.000
+                    SliderText.TextStrokeTransparency = 0.000
+                    SliderText.TextWrapped = true
+
+                    if not Library.flags[self.flag] then
+                        Library.flags[self.flag] = self.value
+                    else
+                        Value.Text = Library.flags[self.flag]
+                        Dragger.Size = UDim2.new(Library.flags[self.flag] / 100, 0, 0, 10)
+                    end
+    
+                    local function update_slider()
+                        local output = math.clamp((mouse.X - Slider.AbsolutePosition.X) / Slider.AbsoluteSize.X, 0, 1)
+                        local value = math.round(output * 100)
+    
+                        Library.flags[self.flag] = value
+                        Value.Text = math.round(output * 100)
+    
+
+                        TweenService:Create(Dragger, TweenInfo.new(1, Enum.EasingStyle.Exponential), {
+                            Size = UDim2.new(output + 0.009, 0, 0, 10)
+                        }):Play()
+
+                        TweenService:Create(Value, TweenInfo.new(1, Enum.EasingStyle.Exponential), {
+                            TextTransparency = 0.25
+                        }):Play()
+
+    
+                        ConfigsController.save(game.GameId, Library.flags)
+                    end
+                    local slider_active = false
+    
+                    local function activate_slider()
+                        slider_active = true
+    
+                        while slider_active do
+                            update_slider()
+    
+                            task.wait()
+                        end
+                    end
+    
+                    Hitbox.MouseButton1Down:Connect(activate_slider)
+                    Hitbox.TouchLongPress:Connect(activate_slider)
+    
+                    UserInputService.InputEnded:Connect(function(input)
+                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                            slider_active = false
+
+                            TweenService:Create(Value, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {
+                                TextTransparency = 1
+                            }):Play()    
+                        end
+                    end)
+                end
+
+                function SettingsController:create_dropdown(callback)
+                    local Dropdown = Instance.new("Frame")
+                    local ScrollingFrame = Instance.new("ScrollingFrame")
+                    local UIPadding = Instance.new("UIPadding")
+                    local UIListLayout = Instance.new("UIListLayout")
+                    local Mode_2 = Instance.new("TextButton")
+                    local Title_2 = Instance.new("TextLabel")
+                    local Mode_3 = Instance.new("TextButton")
+                    local Title_3 = Instance.new("TextLabel")
+
+                    Dropdown.Name = "Dropdown"
+                    Dropdown.Parent = Settings
+                    Dropdown.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+                    Dropdown.BackgroundTransparency = 0.500
+                    Dropdown.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    Dropdown.BorderSizePixel = 0
+                    Dropdown.Position = UDim2.new(0.0231213868, 0, 0.121794872, 0)
+                    Dropdown.Size = UDim2.new(0, 155, 0, 80)
+
+                    ScrollingFrame.Parent = Dropdown
+                    ScrollingFrame.Active = true
+                    ScrollingFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    ScrollingFrame.BackgroundTransparency = 1.000
+                    ScrollingFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    ScrollingFrame.BorderSizePixel = 0
+                    ScrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+                    ScrollingFrame.ZIndex = 5
+                    ScrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 60)
+                    ScrollingFrame.BottomImage = ""
+                    ScrollingFrame.ScrollBarThickness = 1
+                    ScrollingFrame.TopImage = ""
+                    ScrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+
+
+                    local selected_mod
+                    local current_flag = Library.flags[self.flag]
+    
+                    if not current_flag then
+                        Library.flags[self.flag] = self.default_flag or nil
+                        current_flag = Library.flags[self.flag]
+                    end
+    
+                    for _, value in self.mods do
+                        local Mode = Instance.new("TextButton")
+                        local Title = Instance.new("TextLabel")
+                        
+                        Mode.Name = "Mode"
+                        Mode.Parent = ScrollingFrame
+                        Mode.BackgroundColor3 = Color3.fromRGB(14, 14, 14)
+                        Mode.BackgroundTransparency = 0.650
+                        Mode.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                        Mode.BorderSizePixel = 0
+                        Mode.Size = UDim2.new(0, 144, 0, 22)
+                        Mode.AutoButtonColor = false
+                        Mode.Text = ""
+                        Mode.TextColor3 = Color3.fromRGB(0, 0, 0)
+                        Mode.TextSize = 1.000
+                        Mode.TextTransparency = 1.000
+                        Mode.TextWrapped = true
+
+                        Title.Name = "Title"
+                        Title.Parent = Mode
+                        Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+                        Title.BackgroundTransparency = 1.000
+                        Title.Position = UDim2.new(0, 10, 0, 5)
+                        Title.Size = UDim2.new(0, 122, 0, 12)
+                        Title.Font = Enum.Font.Code
+                        Title.Text = value
+                        Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+                        Title.TextSize = 11.000
+                        Title.TextStrokeTransparency = 0.000
+                        Title.TextTransparency = 0.300
+                        Title.TextWrapped = true
+                        Title.TextXAlignment = Enum.TextXAlignment.Left
+                        
+                        UIListLayout.Parent = ScrollingFrame
+                        UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+                        UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+                        UIListLayout.Padding = UDim.new(0, 6)
+
+
+                        if current_flag == value then
+                            selected_mod = Mode
+                            
+                            Mode.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+                        end
+    
+                        Mode.MouseButton1Up:Connect(function()
+                            if selected_mod then
+                                TweenService:Create(selected_mod, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {
+                                    BackgroundColor3 = Color3.fromRGB(14, 14, 14)
+                                }):Play()
+                            end
+    
+                            selected_mod = Mode
+                            
+                            TweenService:Create(Mode, TweenInfo.new(1.2, Enum.EasingStyle.Exponential), {
+                                BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+                            }):Play()
+                            
+                            Library.flags[self.flag] = value
+                            callback(Library.flags[self.flag])
+    
+                            ConfigsController.save(game.GameId, Library.flags)
+                        end)
+
+                        Mode.TouchTap:Connect(function()
+                            if selected_mod then
+                                TweenService:Create(selected_mod, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {
+                                    BackgroundColor3 = Color3.fromRGB(14, 14, 14)
+                                }):Play()
+                            end
+    
+                            selected_mod = Mode
+                            
+                            TweenService:Create(Mode, TweenInfo.new(1.2, Enum.EasingStyle.Exponential), {
+                                BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+                            }):Play()
+                            
+                            Library.flags[self.flag] = value
+                            callback(Library.flags[self.flag])
+    
+                            ConfigsController.save(game.GameId, Library.flags)
+                        end)
+                    end
+
+                    UIPadding.Parent = ScrollingFrame
+                    UIPadding.PaddingTop = UDim.new(0, 10)
+ 
+                    local DropdownText = Instance.new("TextLabel")
+
+                    DropdownText.Name = "DropdownText"
+                    DropdownText.Parent = Settings
+                    DropdownText.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                    DropdownText.BackgroundTransparency = 1.000
+                    DropdownText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                    DropdownText.BorderSizePixel = 0
+                    DropdownText.Position = UDim2.new(0, 0, 1.5, 0)
+                    DropdownText.Size = UDim2.new(0, 145, 0, 10)
+                    DropdownText.ZIndex = 2
+                    DropdownText.Font = Enum.Font.Code
+                    DropdownText.Text = self.title
+                    DropdownText.TextColor3 = Color3.fromRGB(144, 144, 144)
+                    DropdownText.TextSize = 10.000
+                    DropdownText.TextStrokeTransparency = 0.000
+                    DropdownText.TextWrapped = true
+                end
+
+                return SettingsController
+            end
+    
+            return ModuleController
+        end
+    
+        return TabsController
+    end
+
+return Library
