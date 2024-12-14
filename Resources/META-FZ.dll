@@ -356,7 +356,7 @@ function Library:__init__()
         local frame_start_position = UDim2.new()
         
         local ZOOM_FACTOR = 1
-        local GRID_SIZE = 10
+        local GRID_SIZE = 15
         
         local function snap_to_grid(value, grid_size)
             return math.round(value / grid_size) * grid_size
@@ -784,7 +784,7 @@ function Library:__init__()
             end
 
 
-                function SettingsController:create_slider()  
+                function SettingsController:create_slider(callback)  
                     local Slider = Instance.new("Frame")
                     local Value = Instance.new("TextLabel")
                     local Hitbox = Instance.new("TextButton")
@@ -869,6 +869,8 @@ function Library:__init__()
                         local value = math.round(output * 100)
     
                         Library.flags[self.flag] = value
+                        callback(Library.flags[self.flag])
+
                         Value.Text = math.round(output * 100)
     
 
