@@ -356,7 +356,7 @@ function Library:__init__()
         local frame_start_position = UDim2.new()
         
         local ZOOM_FACTOR = 1
-        local GRID_SIZE = 15
+        local GRID_SIZE = 25
         
         local function snap_to_grid(value, grid_size)
             return math.round(value / grid_size) * grid_size
@@ -439,7 +439,7 @@ function Library:__init__()
         
             if drag_enabled and input.UserInputType == Enum.UserInputType.MouseMovement then
                 TweenService:Create(hint, TweenInfo.new(0.25, Enum.EasingStyle.Exponential), {
-                    TextTransparency = 0.89
+                    TextTransparency = 0.7
                 }):Play()
                 
                 update_position(input)
@@ -809,7 +809,7 @@ function Library:__init__()
                     Value.Size = UDim2.new(0, 40, 0, 10)
                     Value.ZIndex = 2
                     Value.Font = Enum.Font.Code
-                    Value.Text = ""
+                    Value.Text = self.value
                     Value.TextColor3 = Color3.fromRGB(255, 255, 255)
                     Value.TextScaled = true
                     Value.TextStrokeTransparency = 0.000
@@ -836,7 +836,7 @@ function Library:__init__()
                     Dragger.BorderSizePixel = 0
                     Dragger.Position = UDim2.new(-1.61682533e-06, 0, 0, 0)
                     Dragger.Selectable = false
-                    Dragger.Size = UDim2.new(0.524835467, 0, 0, 10)
+                    Dragger.Size = UDim2.new(self.value / 100 + 0.009, 0, 0, 10)
                     Dragger.Text = ""
 
                     local SliderText = Instance.new("TextLabel")
