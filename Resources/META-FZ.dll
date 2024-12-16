@@ -836,7 +836,7 @@ function Library:__init__()
                     Dragger.BorderSizePixel = 0
                     Dragger.Position = UDim2.new(-1.61682533e-06, 0, 0, 0)
                     Dragger.Selectable = false
-                    Dragger.Size = UDim2.new(self.value / 100 + 0.009, 0, 0, 10)
+                    Dragger.Size = UDim2.new(self.value / 100 + 0.007, 0, 0, 10)
                     Dragger.Text = ""
 
                     local SliderText = Instance.new("TextLabel")
@@ -875,7 +875,7 @@ function Library:__init__()
     
 
                         TweenService:Create(Dragger, TweenInfo.new(1, Enum.EasingStyle.Exponential), {
-                            Size = UDim2.new(output + 0.009, 0, 0, 10)
+                            Size = UDim2.new(output + 0.007, 0, 0, 10)
                         }):Play()
 
                         TweenService:Create(Value, TweenInfo.new(1, Enum.EasingStyle.Exponential), {
