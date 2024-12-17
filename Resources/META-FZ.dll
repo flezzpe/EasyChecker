@@ -784,69 +784,65 @@ function Library:__init__()
             end
 
 
-                function SettingsController:create_slider(callback)  
-                    local min_value = self.min_value or 0
-                    local max_value = self.max_value or 100
-                
-                    local Slider = Instance.new('Frame')
-                    local Value = Instance.new('TextLabel')
-                    local Hitbox = Instance.new('TextButton')
-                    local Dragger = Instance.new('TextButton')
-                
-                    Slider.Parent = Settings
-                    Slider.Size = UDim2.new(0, 151, 0, 10)
-                
-                    Value.Parent = Slider
-                    Value.Position = UDim2.new(0.380, 0, 0, 0)
-                    Value.Size = UDim2.new(0, 40, 0, 10)
-                    Value.Text = tostring(self.value)
-                
-                    Hitbox.Parent = Slider
-                    Hitbox.Size = UDim2.new(1, 0, 0, 10)
-                
-                    Dragger.Parent = Slider
-                    Dragger.Size = UDim2.new((self.value - min_value) / (max_value - min_value), 0, 0, 10)
-                
-                    if not Library.flags[self.flag] then
-                        Library.flags[self.flag] = self.value
-                    else
-                        local stored_value = Library.flags[self.flag]
-                        Value.Text = tostring(stored_value)
-                        Dragger.Size = UDim2.new((stored_value - min_value) / (max_value - min_value), 0, 0, 10)
-                    end
-                
-                    local function update_slider()
-                        local output = math.clamp((mouse.X - Slider.AbsolutePosition.X) / Slider.AbsoluteSize.X, 0, 1)
-                        local value = math.round(output * (max_value - min_value) + min_value)
-                
-                        Library.flags[self.flag] = value
-                        callback(value)
-                
-                        Value.Text = tostring(value)
-                
-                        TweenService:Create(Dragger, TweenInfo.new(0.1, Enum.EasingStyle.Exponential), {
-                            Size = UDim2.new((value - min_value) / (max_value - min_value), 0, 0, 10)
-                        }):Play()
-                    end
-                
-                    local slider_active = false
-                
-                    local function activate_slider()
-                        slider_active = true
-                        while slider_active do
-                            update_slider()
-                            task.wait()
-                        end
-                    end
-                
-                    Hitbox.MouseButton1Down:Connect(activate_slider)
-                
-                    UserInputService.InputEnded:Connect(function(input)
-                        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                            slider_active = false
+            function SettingsController:create_slider(callback)
+                local min_value = self.min_value or 0
+                local max_value = self.max_value or 100
+                local current_value = self.value or min_value
+            
+                local Slider = Instance.new('Frame')
+                local Value = Instance.new('TextLabel')
+                local Hitbox = Instance.new('TextButton')
+                local Dragger = Instance.new('TextButton')
+        
+                Slider.Parent = Settings
+                Slider.Size = UDim2.new(0, 151, 0, 10)
+                Slider.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+            
+                Value.Parent = Slider
+                Value.Size = UDim2.new(0, 40, 0, 10)
+                Value.Position = UDim2.new(1, 5, 0, 0)
+                Value.Text = tostring(current_value)
+                Value.TextColor3 = Color3.fromRGB(255, 255, 255)
+                      
+                Hitbox.Parent = Slider
+                Hitbox.Size = UDim2.new(1, 0, 1, 0)
+                Hitbox.BackgroundTransparency = 1
+                     
+                Dragger.Parent = Slider
+                Dragger.Size = UDim2.new((current_value - min_value) / (max_value - min_value), 0, 1, 0)
+                Dragger.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+                         
+                local function update_slider(input_position)
+                    local relative_position = math.clamp((input_position - Slider.AbsolutePosition.X) / Slider.AbsoluteSize.X, 0, 1)
+                    local value = math.round(min_value + relative_position * (max_value - min_value))
+            
+                  
+                    Dragger.Size = UDim2.new(relative_position, 0, 1, 0)
+                    Value.Text = tostring(value)
+            
+          
+                    Library.flags[self.flag] = value
+                    callback(value)
+                end
+            
+     
+                Hitbox.MouseButton1Down:Connect(function()
+                    local connection
+                    connection = game:GetService('UserInputService').InputChanged:Connect(function(input)
+                        if input.UserInputType == Enum.UserInputType.MouseMovement then
+                            update_slider(input.Position.X)
                         end
                     end)
-                end            
+            
+   
+                    game:GetService('UserInputService').InputEnded:Connect(function(input)
+                        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                            connection:Disconnect()
+                        end
+                    end)
+                end)
+            end
+             
 
                 function SettingsController:create_dropdown(callback)
                     local Dropdown = Instance.new("Frame")
