@@ -785,11 +785,14 @@ function Library:__init__()
 
 
                 function SettingsController:create_slider(callback)  
+                    min_value = self.min_value or 0
+                    max_value = self.max_value or 100
+                
                     local Slider = Instance.new("Frame")
                     local Value = Instance.new("TextLabel")
                     local Hitbox = Instance.new("TextButton")
                     local Dragger = Instance.new("TextButton")
-
+                
                     Slider.Name = math.random()
                     Slider.Parent = Settings
                     Slider.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
@@ -798,7 +801,7 @@ function Library:__init__()
                     Slider.BorderSizePixel = 1
                     Slider.Position = UDim2.new(-0.107726522, 0, 0.88913542, 0)
                     Slider.Size = UDim2.new(0, 151, 0, 10)
-
+                
                     Value.Name = math.random()
                     Value.Parent = Slider
                     Value.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -815,7 +818,7 @@ function Library:__init__()
                     Value.TextStrokeTransparency = 0.000
                     Value.TextWrapped = true
                     Value.TextTransparency = 1
-
+                
                     Hitbox.Name = math.random()
                     Hitbox.Parent = Slider
                     Hitbox.Active = false
@@ -826,7 +829,7 @@ function Library:__init__()
                     Hitbox.Size = UDim2.new(1, 0, 0, 10)
                     Hitbox.ZIndex = 2
                     Hitbox.Text = ""
-
+                
                     Dragger.Name = math.random()
                     Dragger.Parent = Slider
                     Dragger.Active = false
@@ -836,11 +839,11 @@ function Library:__init__()
                     Dragger.BorderSizePixel = 0
                     Dragger.Position = UDim2.new(-1.61682533e-06, 0, 0, 0)
                     Dragger.Selectable = false
-                    Dragger.Size = UDim2.new(self.value / 100 + 0.007, 0, 0, 10)
+                    Dragger.Size = UDim2.new((self.value - min_value) / (max_value - min_value), 0, 0, 10)
                     Dragger.Text = ""
-
+                
                     local SliderText = Instance.new("TextLabel")
-
+                
                     SliderText.Name = math.random()
                     SliderText.Parent = Settings
                     SliderText.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -856,57 +859,55 @@ function Library:__init__()
                     SliderText.TextSize = 10.000
                     SliderText.TextStrokeTransparency = 0.000
                     SliderText.TextWrapped = true
-
+                
                     if not Library.flags[self.flag] then
                         Library.flags[self.flag] = self.value
                     else
                         Value.Text = Library.flags[self.flag]
-                        Dragger.Size = UDim2.new(Library.flags[self.flag] / 100, 0, 0, 10)
+                        Dragger.Size = UDim2.new((Library.flags[self.flag] - min_value) / (max_value - min_value), 0, 0, 10)
                     end
-    
+                
                     local function update_slider()
                         local output = math.clamp((mouse.X - Slider.AbsolutePosition.X) / Slider.AbsoluteSize.X, 0, 1)
-                        local value = math.round(output * 100)
-    
+                        local value = math.round(output * (max_value - min_value) + min_value)
+                
                         Library.flags[self.flag] = value
                         callback(Library.flags[self.flag])
-
-                        Value.Text = math.round(output * 100)
-    
-
-                        TweenService:Create(Dragger, TweenInfo.new(1, Enum.EasingStyle.Exponential), {
-                            Size = UDim2.new(output + 0.007, 0, 0, 10)
+                
+                        Value.Text = tostring(value)
+                
+                        TweenService:Create(Dragger, TweenInfo.new(0.1, Enum.EasingStyle.Exponential), {
+                            Size = UDim2.new(output, 0, 0, 10)
                         }):Play()
-
-                        TweenService:Create(Value, TweenInfo.new(1, Enum.EasingStyle.Exponential), {
+                
+                        TweenService:Create(Value, TweenInfo.new(0.1, Enum.EasingStyle.Exponential), {
                             TextTransparency = 0.25
                         }):Play()
-
-    
+                
                         ConfigsController.save(game.GameId, Library.flags)
                     end
+                
                     local slider_active = false
-    
+                
                     local function activate_slider()
                         slider_active = true
-    
+                
                         while slider_active do
                             update_slider()
-    
                             task.wait()
                         end
                     end
-    
+                
                     Hitbox.MouseButton1Down:Connect(activate_slider)
                     Hitbox.TouchLongPress:Connect(activate_slider)
-    
+                
                     UserInputService.InputEnded:Connect(function(input)
                         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                             slider_active = false
-
+                
                             TweenService:Create(Value, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {
                                 TextTransparency = 1
-                            }):Play()    
+                            }):Play()
                         end
                     end)
                 end
