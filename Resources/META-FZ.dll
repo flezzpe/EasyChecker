@@ -101,7 +101,14 @@ UserInputService.InputBegan:Connect(function(input, event)
 	end
 
 	Library.open = not Library.open
-    Library.ui.Enabled = not Library.ui.Enabled
+
+    local ui = Library.ui
+
+    if not ui then
+        return
+    end
+
+    ui.Enabled = not ui.Enabled
 end)
 
 
